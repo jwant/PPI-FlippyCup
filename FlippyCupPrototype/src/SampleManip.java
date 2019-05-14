@@ -16,36 +16,24 @@ import net.happybrackets.device.sensors.Sensor;
 
 
 public class SampleManip implements HBAction {
-    class SensorValue {
-        long ticks;
-        float x;
-        float y;
-        float z;
-    }
-    class SampleEdits {
-        String audioFileID;
-        int variationsN;
-        int currentEdit;
-        SensorValue recordedSensor[];
-    }
-
 
     /*Sample Controls*/
-    final String AUDIO_FILE = "CountingCornelius.wav";  //sample choice
+    final String AUDIO_FILE = "OurLove.wav";  //sample choice
     final int SAMPLE_CUTS = 6;  //number of cuts in the sample
     final Boolean GATE = true;  //gate control is off or on
     /*End of Controls*/
 
     /*Clock Controls*/
     final double RECORDING_TIME = 10000;
-    final double RECORDING_INTERVALS = 500;
+    final double RECORDING_INTERVALS = 50;
     /*End of Controls*/
 
 
     /*accelerometer values*/
-    float currentX;
-    float currentY;
-    float currentZ;
+    boolean liveFeed = true;
+    float currentX = 0;
+    float currentY = 0;
+    float currentZ = 0;
     /*end of values*/
 
     final float NORMAL_SPEED = 1;        // defined for speed of sample
@@ -64,7 +52,7 @@ public class SampleManip implements HBAction {
         }
         class SampleEdits {
             String audioFileID;
-            int variationsN;
+            int editN;
             int currentEdit;
             SensorValue recordedSensor[];
         }
@@ -78,13 +66,14 @@ public class SampleManip implements HBAction {
         Glide sampleSpeed = new Glide(NORMAL_SPEED);
 
         //create sample edits class
-        SampleEdits sampleEdits = new SampleEdits();
-        sampleEdits.variationsN = 0;
-        sampleEdits.audioFileID = AUDIO_FILE;
-        sampleEdits.currentEdit = 0;
+        SampleEdits editList = new SampleEdits();
+        editList.audioFileID = AUDIO_FILE;
+        editList.editN = 0;
+        editList.currentEdit = 0;
+        editList.recordedSensor = new SensorValue[(int)(RECORDING_TIME/RECORDING_INTERVALS)];
 
         // Define our sample name
-        final String SAMPLE_NAME = "data/audio/" + sampleEdits.audioFileID;
+        final String SAMPLE_NAME = "data/audio/" + editList.audioFileID;
 
         // create our actual sample
         Sample sample = SampleManager.sample(SAMPLE_NAME);
@@ -113,6 +102,7 @@ public class SampleManip implements HBAction {
             Glide loopEnd = new Glide(LOOP_END);
             samplePlayer.setLoopStart(loopStart);
             samplePlayer.setLoopEnd(loopEnd);
+            samplePlayer.setRate(sampleSpeed);
 
 
 
@@ -125,7 +115,10 @@ public class SampleManip implements HBAction {
 
                 @Override
                 public void sensorUpdated(float xVal, float yVal, float zVal) {
-                    updateLastValues(xVal, yVal, zVal);
+                    if(liveFeed) {
+                        updateLastValues(xVal, yVal, zVal);
+                        manipulateSample(sampleSpeed);
+                    }
                 }
             };
 
@@ -133,27 +126,45 @@ public class SampleManip implements HBAction {
             Clock clock = hb.createClock(RECORDING_INTERVALS).start();
             // Create a clock with beat interval of CLOCK_INTERVAL ms
             clock.addClockTickListener((offset, this_clock) -> {
-                if(recording.getNumberTicks() > 0) {
-                    //Reached the end of the recording time
-                    System.out.println("Recording Finished");
-                    recording.stop();
-                    clock.stop();
-                    samplePlayer.setLoopType(SamplePlayer.LoopType.NO_LOOP_FORWARDS);
-                    samplePlayer.setToEnd();
+                if(liveFeed) {
+                    if (recording.getNumberTicks() > 0) {
+                        //Reached the end of the recording time
+                        recording.stop();
+                        //samplePlayer.setLoopType(SamplePlayer.LoopType.NO_LOOP_FORWARDS);
+                        samplePlayer.setToEnd();
+                        editList.currentEdit = 0;
+                        liveFeed = false;
+
+                    } else if (recording.isRunning()) {
+//                    Record the values of the sensor
+                        SensorValue values = new SensorValue();
+                        values.ticks = clock.getNumberTicks();
+                        values.x = currentX;
+                        values.y = currentY;
+                        values.z = currentZ;
+                        editList.recordedSensor[editList.currentEdit] = values;
+                        editList.currentEdit++;
+                        editList.editN++;
+                        System.out.println("Number of ticks " + clock.getNumberTicks());
+                    }
                 }
-                else if(recording.isRunning()) {
-                    //Record the values of the sensors
-                    System.out.println("number of ticks: " + clock.getNumberTicks());
-                    hb.getAccelerometer_X(-1,1);
-                    System.out.println(
-                            "Value of x: " + currentX + "\n" +
-                            "Value of y: " + currentY + "\n" +
-                            "Value of z: " + currentZ + "\n"
-                            );
-                }
-                else {
-                    //play the sample with the edits
-                    //playEdits(sampleSpeed, sampleEdits);
+                else{
+                    if(editList.currentEdit < editList.editN) {
+                        updateLastValues(
+                                editList.recordedSensor[editList.currentEdit].x,
+                                editList.recordedSensor[editList.currentEdit].y,
+                                editList.recordedSensor[editList.currentEdit].z
+                        );
+
+                        editList.currentEdit++;
+                        manipulateSample(sampleSpeed);
+                    }
+                    else {
+                        samplePlayer.setLoopType(SamplePlayer.LoopType.NO_LOOP_FORWARDS);
+                        samplePlayer.setToEnd();
+                        clock.stop();
+                        System.out.println("we are done");
+                    }
                 }
             });
 
@@ -166,39 +177,9 @@ public class SampleManip implements HBAction {
 
     }
 
-    SensorValue createEdit(long position) {
-        SensorValue values = new SensorValue();
-        values.ticks = position;
-        values.x = currentX;
-        values.y = currentY;
-        values.z = currentZ;
-        return values;
-    }
 
-    void addEdit(SampleEdits sampleEdits, long position) {
-        sampleEdits.currentEdit++;
-        sampleEdits.recordedSensor[sampleEdits.currentEdit] = createEdit(position);
-    }
-
-    void playEdits(Glide sampleSpeed, SampleEdits edits) {
-        Clock recordingInterval = new Clock(RECORDING_INTERVALS).start();
-        recordingInterval.addClockTickListener((offset, this_clock) -> {
-           if(edits.variationsN != edits.currentEdit) {
-               if(recordingInterval.getNumberTicks() == edits.recordedSensor[edits.currentEdit].ticks) {
-                   //put in recording variation samples
-                   manipulateSample(sampleSpeed,
-                           edits.recordedSensor[edits.currentEdit].x,
-                           edits.recordedSensor[edits.currentEdit].y,
-                           edits.recordedSensor[edits.currentEdit].z
-                   );
-                   edits.currentEdit++;
-               }
-           }
-        });
-    }
-
-    void manipulateSample(Glide sampleSpeed, float x, float y, float z) {
-        sampleSpeed.setValue(x + 1);
+    void manipulateSample(Glide sampleSpeed) {
+        sampleSpeed.setValue(currentX * 2);
     }
 
     void updateLastValues(float lastX, float lastY, float lastZ) {
