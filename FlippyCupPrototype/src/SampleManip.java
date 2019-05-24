@@ -17,20 +17,34 @@ import net.happybrackets.device.sensors.Sensor;
 
 public class SampleManip implements HBAction {
 
+    final String AUDIO_FILES[] = {
+            "data/audio/OurLove.wav",
+            "data/audio/CountingCornelius.wav",
+            "data/audio/FlyingLotus.wav",
+            "data/audio/DrumsFugazi.wav"
+
+    };
+
+
     /*Sample Controls*/
-    final String AUDIO_FILE = "OurLove.wav";  //sample choice
-    final int SAMPLE_CUTS = 6;  //number of cuts in the sample
+    int audioFile = 3;  //sample choice
+    final int SAMPLE_CUTS = 25;  //number of cuts in the sample
     final Boolean GATE = true;  //gate control is off or on
+    //defining sample list
+    Sample sampleList[] = new Sample[AUDIO_FILES.length];
     /*End of Controls*/
 
     /*Clock Controls*/
     final double RECORDING_TIME = 10000;
     final double RECORDING_INTERVALS = 50;
+    //0: choose sample(done), 1: manipulate sample(done), 2: recordSample (not complete)
+    int SYSTEM_STATE = 1;
     /*End of Controls*/
 
 
     /*accelerometer values*/
     boolean liveFeed = true;
+    boolean ReturnedFlag = false;
     float currentX = 0;
     float currentY = 0;
     float currentZ = 0;
@@ -44,20 +58,18 @@ public class SampleManip implements HBAction {
     @Override
     public void action(HB hb) {
         class SensorValue {
-            String Sensor;
             long ticks;
             float x;
             float y;
             float z;
         }
         class SampleEdits {
-            String audioFileID;
             int editN;
             int currentEdit;
             SensorValue recordedSensor[];
         }
         // remove this code if you do not want other compositions t8o run at the same time as this one
-        hb.reset();
+        //hb.reset();
         hb.setStatus(this.getClass().getSimpleName() + " Loaded");
 
         //Sample Creation
@@ -67,22 +79,22 @@ public class SampleManip implements HBAction {
 
         //create sample edits class
         SampleEdits editList = new SampleEdits();
-        editList.audioFileID = AUDIO_FILE;
         editList.editN = 0;
         editList.currentEdit = 0;
         editList.recordedSensor = new SensorValue[(int)(RECORDING_TIME/RECORDING_INTERVALS)];
 
-        // Define our sample name
-        final String SAMPLE_NAME = "data/audio/" + editList.audioFileID;
 
-        // create our actual sample
-        Sample sample = SampleManager.sample(SAMPLE_NAME);
+        // create our sample
+        for(int x = 0; x < AUDIO_FILES.length; x++) {
+            sampleList[x] = SampleManager.sample(AUDIO_FILES[x]);
+        }
+
+        Sample sample = sampleList[audioFile];
 
         // test if we opened the sample successfully
         if (sample != null) {
             // Create our sample player
             SamplePlayer samplePlayer = new SamplePlayer(sample);
-
             // Samples are killed by default at end. We will stop this default actions so our sample will stay alive
             samplePlayer.setKillOnEnd(false);
 
@@ -92,16 +104,11 @@ public class SampleManip implements HBAction {
             hb.ac.out.addInput(gainAmplifier);
 
             samplePlayer.setLoopType(SamplePlayer.LoopType.LOOP_FORWARDS);
-            // now set the loop start and end in the actual sample player
-            final float LOOP_START = 0;
-            final float LOOP_LENGTH = (float)sample.getLength();
-            final float LOOP_END = (float)LOOP_LENGTH;
 
-            // create our looping objects
-            Glide loopStart = new Glide(LOOP_START);
-            Glide loopEnd = new Glide(LOOP_END);
-            samplePlayer.setLoopStart(loopStart);
-            samplePlayer.setLoopEnd(loopEnd);
+            sampleStart(samplePlayer);
+            // now set the loop start and end in the actual sample player
+            final float LOOP_LENGTH = (float)sampleList[audioFile].getLength();
+
             samplePlayer.setRate(sampleSpeed);
 
 
@@ -117,7 +124,6 @@ public class SampleManip implements HBAction {
                 public void sensorUpdated(float xVal, float yVal, float zVal) {
                     if(liveFeed) {
                         updateLastValues(xVal, yVal, zVal);
-                        manipulateSample(sampleSpeed);
                     }
                 }
             };
@@ -134,6 +140,7 @@ public class SampleManip implements HBAction {
                         samplePlayer.setToEnd();
                         editList.currentEdit = 0;
                         liveFeed = false;
+                        System.out.println("not on live feed");
 
                     } else if (recording.isRunning()) {
 //                    Record the values of the sensor
@@ -146,6 +153,8 @@ public class SampleManip implements HBAction {
                         editList.currentEdit++;
                         editList.editN++;
                         System.out.println("Number of ticks " + clock.getNumberTicks());
+                        manipulateSample(samplePlayer, LOOP_LENGTH);
+
                     }
                 }
                 else{
@@ -157,19 +166,20 @@ public class SampleManip implements HBAction {
                         );
 
                         editList.currentEdit++;
-                        manipulateSample(sampleSpeed);
+                        manipulateSample(samplePlayer, LOOP_LENGTH);
                     }
                     else {
-                        samplePlayer.setLoopType(SamplePlayer.LoopType.NO_LOOP_FORWARDS);
-                        samplePlayer.setToEnd();
-                        clock.stop();
-                        System.out.println("we are done");
+//                        samplePlayer.setLoopType(SamplePlayer.LoopType.NO_LOOP_FORWARDS);
+//                        samplePlayer.setToEnd();
+//                        clock.stop();
+//                        System.out.println("we are done");
+                        editList.currentEdit = 0;
                     }
                 }
             });
 
         } else {
-            hb.setStatus("Failed sample " + SAMPLE_NAME);
+            hb.setStatus("Failed sample " + AUDIO_FILES[audioFile]);
         }
 
 
@@ -178,8 +188,66 @@ public class SampleManip implements HBAction {
     }
 
 
-    void manipulateSample(Glide sampleSpeed) {
-        sampleSpeed.setValue(currentX * 2);
+    void manipulateSample(SamplePlayer samplePlayer, float loopLength) {
+
+        switch(SYSTEM_STATE) {
+            case 0:             //Choose the sample you would like to play
+                changeSample(samplePlayer);
+                break;
+            case 1:             //Manipulate the sample
+                sampleCutting(samplePlayer, loopLength);
+                break;
+            case 2:             //Play the sampel
+
+        }
+
+    }
+
+    void changeSample(SamplePlayer samplePlayer) {
+        if(ReturnedFlag) {
+            if (currentY > .9) {
+                audioFile++;
+                if (audioFile == sampleList.length)
+                    audioFile = 0;
+                samplePlayer.setSample(sampleList[audioFile]);
+                sampleStart(samplePlayer);
+            } else if (currentY < -.9) {
+                audioFile--;
+                if (audioFile < 0)
+                    audioFile = sampleList.length;
+                samplePlayer.setSample(sampleList[audioFile]);
+                sampleStart(samplePlayer);
+            }
+
+        }
+        else {
+            if(-.8 < currentY && currentY < .8) {
+                ReturnedFlag = true;
+            }
+        }
+    }
+
+    void sampleCutting(SamplePlayer samplePlayer, float loopLength) {
+        if(ReturnedFlag) {
+            System.out.println("Current y" + currentY);
+            // we will only do a change if our yaw is >= 1 or <= -1
+            if (currentZ > 0) {
+                float y_scaled = Sensor.scaleValue(-1, 1, 0, SAMPLE_CUTS, currentY);
+                samplePlayer.start(loopLength * (int) y_scaled / SAMPLE_CUTS);
+                ReturnedFlag = false;
+            } else {
+                //must be positive
+            }
+        }
+        else {
+            if(currentZ < 0) {
+                ReturnedFlag = true;
+                if(GATE) {
+                    samplePlayer.pause(true);
+                }
+            }
+
+        }
     }
 
     void updateLastValues(float lastX, float lastY, float lastZ) {
@@ -188,4 +256,15 @@ public class SampleManip implements HBAction {
         currentZ = lastZ;
     }
 
+    void sampleStart(SamplePlayer samplePlayer) {
+        float start = 0;
+        float length = (float)sampleList[audioFile].getLength();
+
+        // create our looping objects
+        Glide loopStart = new Glide(start);
+        Glide loopEnd = new Glide(length);
+        samplePlayer.setLoopStart(loopStart);
+        samplePlayer.setLoopEnd(loopEnd);
+        ReturnedFlag = false;
+    }
 }
