@@ -1,5 +1,6 @@
 
 
+import com.pi4j.io.gpio.PinPullResistance;
 import net.beadsproject.beads.data.Sample;
 import net.beadsproject.beads.data.SampleManager;
 import net.beadsproject.beads.ugens.Gain;
@@ -12,7 +13,9 @@ import net.happybrackets.device.sensors.Accelerometer;
 import net.happybrackets.device.sensors.GyroscopeListener;
 import net.happybrackets.device.sensors.AccelerometerListener;
 import net.happybrackets.device.sensors.Sensor;
-
+import net.happybrackets.device.sensors.gpio.GPIO;
+import net.happybrackets.device.sensors.gpio.GPIODigitalOutput;
+import net.happybrackets.device.sensors.gpio.GPIOInput;
 
 
 public class SampleManip implements HBAction {
@@ -24,12 +27,17 @@ public class SampleManip implements HBAction {
             "data/audio/DrumsFugazi.wav"
 
     };
-
+    /*GPIO Controls*/
+    // We need to SET GPIO 28 High to enable Input or Output for GPIO on PiHat board
+    private static final int GPIO_ENABLE =  28;
+    // Define what outr GPIO Input pin is
+    final int GPIO_NUMBER = 25;
 
     /*Sample Controls*/
-    int audioFile = 3;  //sample choice
-    final int SAMPLE_CUTS = 25;  //number of cuts in the sample
+    int audioFile = 0;  //sample choice
+    final int SAMPLE_CUTS = 100;  //number of cuts in the sample
     final Boolean GATE = true;  //gate control is off or on
+    final Boolean REPEAT = true;
     //defining sample list
     Sample sampleList[] = new Sample[AUDIO_FILES.length];
     /*End of Controls*/
@@ -38,7 +46,7 @@ public class SampleManip implements HBAction {
     final double RECORDING_TIME = 10000;
     final double RECORDING_INTERVALS = 50;
     //0: choose sample(done), 1: manipulate sample(done), 2: recordSample (not complete)
-    int SYSTEM_STATE = 1;
+    int SystemState = 0;
     /*End of Controls*/
 
 
@@ -112,11 +120,10 @@ public class SampleManip implements HBAction {
             samplePlayer.setRate(sampleSpeed);
 
 
-
-
             /*****************************************************************
              * Sensor Section:
-             * Accelerometer: Currently does nothing
+             * Accelerometer: manipulates sample or chooses what sample to
+             * play
             *****************************************************************/
             new  AccelerometerListener(hb) {
 
@@ -124,15 +131,26 @@ public class SampleManip implements HBAction {
                 public void sensorUpdated(float xVal, float yVal, float zVal) {
                     if(liveFeed) {
                         updateLastValues(xVal, yVal, zVal);
+                        manipulateSample(samplePlayer, LOOP_LENGTH);
+
                     }
                 }
             };
 
-            Clock recording = hb.createClock(RECORDING_TIME).start();
-            Clock clock = hb.createClock(RECORDING_INTERVALS).start();
+
+
+            /*****************************************************************
+             * Clock Section:
+             * Recording: total recording time of the sample
+             * Clock: how often sensor values are stored
+             *****************************************************************/
+
+            System.out.println("We get to just before the clock");
+            Clock recording = hb.createClock(RECORDING_TIME);
+            Clock clock = hb.createClock(RECORDING_INTERVALS);
             // Create a clock with beat interval of CLOCK_INTERVAL ms
             clock.addClockTickListener((offset, this_clock) -> {
-                if(liveFeed) {
+                if (liveFeed) {
                     if (recording.getNumberTicks() > 0) {
                         //Reached the end of the recording time
                         recording.stop();
@@ -140,8 +158,7 @@ public class SampleManip implements HBAction {
                         samplePlayer.setToEnd();
                         editList.currentEdit = 0;
                         liveFeed = false;
-                        System.out.println("not on live feed");
-
+                        System.out.println("Play your manipulations");
                     } else if (recording.isRunning()) {
 //                    Record the values of the sensor
                         SensorValue values = new SensorValue();
@@ -153,12 +170,10 @@ public class SampleManip implements HBAction {
                         editList.currentEdit++;
                         editList.editN++;
                         System.out.println("Number of ticks " + clock.getNumberTicks());
-                        manipulateSample(samplePlayer, LOOP_LENGTH);
-
                     }
                 }
-                else{
-                    if(editList.currentEdit < editList.editN) {
+                else {
+                    if (editList.currentEdit < editList.editN) {
                         updateLastValues(
                                 editList.recordedSensor[editList.currentEdit].x,
                                 editList.recordedSensor[editList.currentEdit].y,
@@ -169,14 +184,77 @@ public class SampleManip implements HBAction {
                         manipulateSample(samplePlayer, LOOP_LENGTH);
                     }
                     else {
-//                        samplePlayer.setLoopType(SamplePlayer.LoopType.NO_LOOP_FORWARDS);
-//                        samplePlayer.setToEnd();
-//                        clock.stop();
-//                        System.out.println("we are done");
-                        editList.currentEdit = 0;
+                        if(!REPEAT) {
+                            samplePlayer.setLoopType(SamplePlayer.LoopType.NO_LOOP_FORWARDS);
+                            samplePlayer.setToEnd();
+                            clock.stop();
+                            System.out.println("we are done");
+                            editList.currentEdit = 0;
+                            hb.reset();
+                        }
+                        else
+                            editList.currentEdit = 0;
                     }
                 }
             });
+
+
+            System.out.println("Button Section");
+
+            /*****************************************************************
+             * Button Section:
+             * Input PIN: connect to a grove button
+             *****************************************************************/
+
+            // Reset all our GPIO - Only really necessary if the Pin has been assigned as something other than an input before
+            GPIO.resetAllGPIO();
+
+            //Start with sample selection
+            hb.setStatus("Choose Your Sample");
+
+            /* Type gpioDigitalIn to create this code*/
+            GPIOInput inputPin = GPIOInput.getInputPin(GPIO_NUMBER, PinPullResistance.OFF);
+            if (inputPin != null) {
+
+                inputPin.addStateListener((sensor, new_state) -> {/* Write your code below this line */
+                    hb.setStatus("GPIO State: " + new_state);
+                    if(new_state) {
+                        SystemState++;
+                        System.out.println("System State: " + SystemState);
+                        switch(SystemState) {
+                            case 0: //choose sample
+                                hb.setStatus("Choose Your Sample");
+                                System.out.println("Choose Your Sample");
+                                break;
+                            case 1: //manipulate sample
+                                hb.setStatus("Manipulate Sample");
+                                System.out.println("Manipulate Sample");
+                                break;
+                            case 2:
+                                hb.setStatus("Record Manipulation");
+                                recording.start();
+                                clock.start();
+                                System.out.println("Record Manipulation");
+                            default:
+                                hb.setStatus("Reset System");
+                        }
+                    }
+                    /* Write your code above this line */
+                });
+            } else {
+                hb.setStatus("Fail GPIO Input " + GPIO_NUMBER);
+            }/* End gpioDigitalIn code */
+
+
+            // Enable our GPIO on the PiHat
+            GPIODigitalOutput outputPin = GPIODigitalOutput.getOutputPin(GPIO_ENABLE);
+            if (outputPin == null) {
+                hb.setStatus("Fail GPIO Digital Out " + GPIO_ENABLE);
+            }/* End gpioDigitalOut code */
+            else {
+                outputPin.setState(true);
+            }
+
 
         } else {
             hb.setStatus("Failed sample " + AUDIO_FILES[audioFile]);
@@ -190,14 +268,18 @@ public class SampleManip implements HBAction {
 
     void manipulateSample(SamplePlayer samplePlayer, float loopLength) {
 
-        switch(SYSTEM_STATE) {
+        switch(SystemState) {
             case 0:             //Choose the sample you would like to play
                 changeSample(samplePlayer);
                 break;
             case 1:             //Manipulate the sample
                 sampleCutting(samplePlayer, loopLength);
                 break;
-            case 2:             //Play the sampel
+            case 2:             //manipulate sample and record
+                sampleCutting(samplePlayer, loopLength);
+            default:
+                sampleCutting(samplePlayer,loopLength);
+                break;
 
         }
 
@@ -205,18 +287,20 @@ public class SampleManip implements HBAction {
 
     void changeSample(SamplePlayer samplePlayer) {
         if(ReturnedFlag) {
-            if (currentY > .9) {
+            if (currentY < -.9) {
                 audioFile++;
-                if (audioFile == sampleList.length)
-                    audioFile = 0;
-                samplePlayer.setSample(sampleList[audioFile]);
-                sampleStart(samplePlayer);
-            } else if (currentY < -.9) {
+                if (audioFile >= sampleList.length) audioFile = 0;
+                if(sampleList[audioFile] != null) {
+                    samplePlayer.setSample(sampleList[audioFile]);
+                    sampleStart(samplePlayer);
+                }
+            } else if (currentY > .9) {
                 audioFile--;
-                if (audioFile < 0)
-                    audioFile = sampleList.length;
-                samplePlayer.setSample(sampleList[audioFile]);
-                sampleStart(samplePlayer);
+                if (audioFile < 0) audioFile = sampleList.length-1;
+                if(sampleList[audioFile] != null) {
+                    samplePlayer.setSample(sampleList[audioFile]);
+                    sampleStart(samplePlayer);
+                }
             }
 
         }
@@ -229,7 +313,6 @@ public class SampleManip implements HBAction {
 
     void sampleCutting(SamplePlayer samplePlayer, float loopLength) {
         if(ReturnedFlag) {
-            System.out.println("Current y" + currentY);
             // we will only do a change if our yaw is >= 1 or <= -1
             if (currentZ > 0) {
                 float y_scaled = Sensor.scaleValue(-1, 1, 0, SAMPLE_CUTS, currentY);
