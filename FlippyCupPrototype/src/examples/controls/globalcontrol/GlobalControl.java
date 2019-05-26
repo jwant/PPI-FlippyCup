@@ -79,6 +79,8 @@ public class GlobalControl implements HBAction {
             }
         };
         globalOnOff.setControlScope(ControlScope.GLOBAL);
+
+
         /* End DynamicControl globalOnOff code */
 
 

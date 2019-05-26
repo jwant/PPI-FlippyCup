@@ -1,4 +1,4 @@
-package examples.gpio;
+package examples.pihat;
 
 import com.pi4j.io.gpio.PinPullResistance;
 import net.happybrackets.core.HBAction;
@@ -8,24 +8,34 @@ import net.happybrackets.device.HB;
 import net.happybrackets.device.sensors.gpio.GPIO;
 import net.happybrackets.device.sensors.gpio.GPIODigitalOutput;
 import net.happybrackets.device.sensors.gpio.GPIOInput;
-import net.happybrackets.device.sensors.gpio.GPIOInputListener;
-
 
 import java.lang.invoke.MethodHandles;
 
 /**
-
- These are for PI hats
-
- In order to use them, you need to set GPIO 28 to high - otherwise they are a high state
-
- GPIO are 25, 23, 22 and 21
-
- Look at GPIO examples for output and input
+ *
+ * These are for UNSW PI hats
+ *
+ * In order to use them, you need to set GPIO 28 to high - otherwise they are a tri-state
+ *
+ *
+ * GPIO are 25, 23, 22 and 21
+ *
+ *
+ * The state will be displayed in HB Status
+ *
+ *                                ____╱╲  ╱╲  ___ +5V (Red Grove pin - pin 3)
+ *                       ╱       |      ╲╱  ╲╱
+ *                      ╱        |
+ *    _________________╱      ___|____________  GPIO (Pin 1 on Grove)
+ * __|__ Black grove pin
+ *  ___  (Pin 4 on Grove)
+ *   _
+ *
  *
  *******************************************************/
-public class DigitalInGPIO implements HBAction, HBReset {
+public class PiHatDigitalInGPIO implements HBAction, HBReset {
 
+    // We need to SET GPIO 28 High to enable Input or Output for GPIO on PiHat board
     private static final int GPIO_ENABLE =  28;
     // Define what outr GPIO Input pin is
     final int GPIO_NUMBER = 25;
@@ -41,7 +51,21 @@ public class DigitalInGPIO implements HBAction, HBReset {
         GPIO.resetAllGPIO();
 
 
-        /* Type gpioDigitalOut to create this code */
+        /* Type gpioDigitalIn to create this code*/
+        GPIOInput inputPin = GPIOInput.getInputPin(GPIO_NUMBER, PinPullResistance.OFF);
+        if (inputPin != null) {
+
+            inputPin.addStateListener((sensor, new_state) -> {/* Write your code below this line */
+                hb.setStatus("GPIO State: " + new_state);
+                sensor.stateChanged(sensor, new_state);
+                /* Write your code above this line */
+            });
+        } else {
+            hb.setStatus("Fail GPIO Input " + GPIO_NUMBER);
+        }/* End gpioDigitalIn code */
+
+
+        // Enable our GPIO on the PiHat
         GPIODigitalOutput outputPin = GPIODigitalOutput.getOutputPin(GPIO_ENABLE);
         if (outputPin == null) {
             hb.setStatus("Fail GPIO Digital Out " + GPIO_ENABLE);
@@ -49,17 +73,6 @@ public class DigitalInGPIO implements HBAction, HBReset {
         else {
             outputPin.setState(true);
         }
-
-        /* Type gpioDigitalIn to create this code*/
-        GPIOInput inputPin = GPIOInput.getInputPin(GPIO_NUMBER, PinPullResistance.PULL_DOWN);
-        if (inputPin != null) {
-            inputPin.addStateListener((sensor, new_state) -> {/* Write your code below this line */
-                hb.setStatus("GPIO State: " + new_state);
-                /* Write your code above this line */
-            });
-        } else {
-            hb.setStatus("Fail GPIO Input " + GPIO_NUMBER);
-        }/* End gpioDigitalIn code */
 
         /***** Type your HBAction code above this line ******/
     }
