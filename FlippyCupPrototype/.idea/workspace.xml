@@ -19,8 +19,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/SampleManip.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="253">
-              <caret line="174" lean-forward="true" selection-start-line="174" selection-end-line="174" />
+            <state relative-caret-position="289">
+              <caret line="63" lean-forward="true" selection-start-line="63" selection-end-line="63" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -31,8 +31,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/CupSendReceiver.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="272">
-              <caret line="268" column="54" lean-forward="true" selection-start-line="268" selection-start-column="54" selection-end-line="268" selection-end-column="54" />
+            <state relative-caret-position="2720">
+              <caret line="179" column="5" selection-start-line="179" selection-start-column="5" selection-end-line="179" selection-end-column="5" />
               <folding>
                 <element signature="imports" expanded="true" />
               </folding>
@@ -85,8 +85,12 @@
         <option value="$PROJECT_DIR$/src/cupsR.java" />
         <option value="$PROJECT_DIR$/src/examples/samples/sensorcontroller/SampleRateAccelerometer.java" />
         <option value="$PROJECT_DIR$/src/examples/controls/globalcontrol/GlobalControl.java" />
-        <option value="$PROJECT_DIR$/src/SampleManip.java" />
+        <option value="$PROJECT_DIR$/src/SampleManip2.java" />
         <option value="$PROJECT_DIR$/src/CupSendReceiver.java" />
+        <option value="$PROJECT_DIR$/src/waveManip.java" />
+        <option value="$PROJECT_DIR$/src/WaveReceiver.java" />
+        <option value="$PROJECT_DIR$/src/WaveManip.java" />
+        <option value="$PROJECT_DIR$/src/SampleManip.java" />
       </list>
     </option>
   </component>
@@ -106,7 +110,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -130,12 +133,13 @@
         </subPane>
       </pane>
       <pane id="Scope" />
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1558859868711" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1559363288645" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../Assignment1" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="project.structure.last.edited" value="Libraries" />
@@ -161,20 +165,20 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Application.DigitalInGPIO">
+  <component name="RunManager" selected="Application.BasicFM">
     <configuration default="true" type="Applet">
       <option name="POLICY_FILE" value="$APPLICATION_HOME_DIR$/bin/appletviewer.policy" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="AlternatingLoopedSamplePlayer" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="examples.samples.AlternatingLoopedSamplePlayer" />
+    <configuration name="BasicFM" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="examples.fmsynthesis.BasicFM" />
       <module name="FlippyCupPrototype" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/Device/HappyBrackets" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="examples.samples.*" />
+          <option name="PATTERN" value="examples.fmsynthesis.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -196,6 +200,20 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="RatioDepthFM" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="examples.fmsynthesis.RatioDepthFM" />
+      <module name="FlippyCupPrototype" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/Device/HappyBrackets" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="examples.fmsynthesis.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="SampleDirectionGyroscope" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="examples.samples.sensorcontroller.SampleDirectionGyroscope" />
       <module name="FlippyCupPrototype" />
@@ -210,27 +228,13 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="SampleSpeedAndDirection" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="examples.samples.sensorcontroller.SampleSpeedAndDirection" />
+    <configuration name="SimpleMIDI" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="examples.midi.basic.SimpleMIDI" />
       <module name="FlippyCupPrototype" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/Device/HappyBrackets" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="examples.samples.sensorcontroller.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="VariableClock" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="examples.events.clocks.VariableClock" />
-      <module name="FlippyCupPrototype" />
-      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$/Device/HappyBrackets" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="examples.events.clocks.*" />
+          <option name="PATTERN" value="examples.midi.basic.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -262,11 +266,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.BasicFM" />
+        <item itemvalue="Application.RatioDepthFM" />
+        <item itemvalue="Application.SimpleMIDI" />
         <item itemvalue="Application.DigitalInGPIO" />
         <item itemvalue="Application.SampleDirectionGyroscope" />
-        <item itemvalue="Application.SampleSpeedAndDirection" />
-        <item itemvalue="Application.AlternatingLoopedSamplePlayer" />
-        <item itemvalue="Application.VariableClock" />
       </list>
     </recent_temporary>
   </component>
@@ -297,16 +301,28 @@
       <workItem from="1558670386201" duration="94000" />
       <workItem from="1558670657305" duration="4280000" />
       <workItem from="1558743371634" duration="34605000" />
+      <workItem from="1558915328038" duration="890000" />
+      <workItem from="1558932799272" duration="1847000" />
+      <workItem from="1559085434951" duration="4748000" />
+      <workItem from="1559177514474" duration="3739000" />
+      <workItem from="1559200536360" duration="718000" />
+      <workItem from="1559268770624" duration="4010000" />
+      <workItem from="1559272903738" duration="131000" />
+      <workItem from="1559356968173" duration="2065000" />
+      <workItem from="1559361640197" duration="1485000" />
+      <workItem from="1559979297568" duration="350000" />
+      <workItem from="1560301345611" duration="603000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="95669000" />
+    <option name="totallyTimeSpent" value="116255000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="754" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.16111952" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.18683812" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.24959612" />
       <window_info id="Designer" order="2" />
       <window_info id="Image Layers" order="3" />
@@ -315,13 +331,13 @@
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" sideWeight="0.49353796" weight="0.32840723" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.39409986" weight="0.072463766" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.39334342" weight="0.072463766" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.46616542" weight="0.39823008" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Terminal" order="7" sideWeight="0.49676898" weight="0.24959743" />
-      <window_info anchor="bottom" id="Event Log" order="8" sideWeight="0.51134646" side_tool="true" visible="true" weight="0.048309177" />
+      <window_info anchor="bottom" id="Event Log" order="8" sideWeight="0.60665655" side_tool="true" visible="true" weight="0.072463766" />
       <window_info anchor="bottom" id="Version Control" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Messages" order="10" sideWeight="0.48865354" weight="0.136876" />
       <window_info anchor="bottom" id="Docker" order="11" show_stripe_button="false" />
@@ -330,7 +346,7 @@
       <window_info anchor="right" id="Commander" order="0" weight="0.4" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="1" sideWeight="0.496063" weight="0.1648" />
       <window_info anchor="right" id="Palette" order="2" />
-      <window_info active="true" anchor="right" id="HappyBrackets" order="3" sideWeight="0.496063" visible="true" weight="0.3161876" />
+      <window_info active="true" anchor="right" id="HappyBrackets" order="3" sideWeight="0.496063" visible="true" weight="0.31996974" />
       <window_info anchor="right" id="Capture Analysis" order="4" />
       <window_info anchor="right" id="Theme Preview" order="5" />
       <window_info anchor="right" id="Palette&#9;" order="6" />
@@ -383,13 +399,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="54">
           <caret line="23" column="55" selection-start-line="23" selection-start-column="55" selection-end-line="23" selection-end-column="55" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/examples/samples/sensorcontroller/SampleSpeedAndDirection.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-323">
-          <caret line="74" lean-forward="true" selection-start-line="74" selection-end-line="74" />
         </state>
       </provider>
     </entry>
@@ -535,35 +544,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/CupSendReceiver.class">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="19" column="35" lean-forward="true" selection-start-line="19" selection-start-column="35" selection-end-line="19" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/cupsR.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="340">
-          <caret line="20" column="28" selection-end-line="142" />
-          <folding>
-            <element signature="imports" expanded="true" />
-            <element signature="e#4777#4836#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/src/CupSendReceiver.class" />
+    <entry file="file://$PROJECT_DIR$/src/cupsR.java" />
     <entry file="file://$PROJECT_DIR$/src/examples/samples/sensorcontroller/SampleRateAccelerometer.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="222">
           <caret line="77" column="12" selection-start-line="89" selection-start-column="20" selection-end-line="89" selection-end-column="52" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/examples/pihat/PiHatDigitalInGPIO.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-71">
-          <caret line="39" column="41" selection-start-line="39" selection-start-column="41" selection-end-line="39" selection-end-column="41" />
         </state>
       </provider>
     </entry>
@@ -602,20 +588,94 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/CupSendReceiver.java">
+    <entry file="file://$PROJECT_DIR$/src/examples/pihat/PiHatDigitalInGPIO.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="268" column="54" lean-forward="true" selection-start-line="268" selection-start-column="54" selection-end-line="268" selection-end-column="54" />
+        <state relative-caret-position="204">
+          <caret line="50" column="28" lean-forward="true" selection-start-line="50" selection-start-column="28" selection-end-line="50" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/SampleManip2.java" />
+    <entry file="file://$PROJECT_DIR$/src/examples/samples/sensorcontroller/SampleSpeedAndDirection.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="133" column="20" lean-forward="true" selection-start-line="133" selection-start-column="20" selection-end-line="133" selection-end-column="52" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/examples/sensor/accelerometer/TripleAxisAccelerometer.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="223">
+          <caret line="45" column="43" selection-start-line="45" selection-start-column="43" selection-end-line="45" selection-end-column="43" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/examples/midi/basic/SimpleMIDI.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="21" column="31" lean-forward="true" selection-start-line="21" selection-start-column="31" selection-end-line="21" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/examples/pihat/PiHatDigitalOutGPIO.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="391">
+          <caret line="35" column="31" lean-forward="true" selection-start-line="35" selection-start-column="31" selection-end-line="35" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/WaveManip.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="3573">
+          <caret line="284" column="8" lean-forward="true" selection-start-line="284" selection-start-column="8" selection-end-line="284" selection-end-column="8" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="jar://$PROJECT_DIR$/Device/HappyBrackets/HB.jar!/net/beadsproject/beads/core/AudioContext.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="25" column="22" selection-start-line="25" selection-start-column="22" selection-end-line="25" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/WaveReceiver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="18" selection-start-line="18" selection-end-line="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/examples/fmsynthesis/BasicFM.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="23" selection-start-line="23" selection-end-line="23" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/examples/fmsynthesis/RatioDepthFM.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="23" selection-start-line="23" selection-end-line="23" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/SampleManip.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="253">
-          <caret line="174" lean-forward="true" selection-start-line="174" selection-end-line="174" />
+        <state relative-caret-position="289">
+          <caret line="63" lean-forward="true" selection-start-line="63" selection-end-line="63" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/CupSendReceiver.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2720">
+          <caret line="179" column="5" selection-start-line="179" selection-start-column="5" selection-end-line="179" selection-end-column="5" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>

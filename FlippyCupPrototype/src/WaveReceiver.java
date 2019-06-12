@@ -23,7 +23,7 @@ import java.net.SocketAddress;
 /* THis composition will use the accelerometer sensor and map each axis to a different wave Type
 
  */
-public class CupSendReceiver implements HBAction, HBReset {
+public class WaveReceiver implements HBAction, HBReset {
     // Change to the number of audio Channels on your device
     final int NUMBER_AUDIO_CHANNELS = 1;
 
@@ -238,12 +238,12 @@ public class CupSendReceiver implements HBAction, HBReset {
             BooleanControl globalOnOff = new BooleanControl(this, "On / Off", true) {
                 @Override
                 public void valueChanged(Boolean control_val) { /* Write your DynamicControl code below this line */
-                        if (control_val){
-                            audioVolume.setValue(INITIAL_VOLUME);
-                        }
-                        else {
-                            audioVolume.setValue(HUSHED_VOLUME);
-                        }
+                    if (control_val){
+                        audioVolume.setValue(INITIAL_VOLUME);
+                    }
+                    else {
+                        audioVolume.setValue(HUSHED_VOLUME);
+                    }
 
                 }
             };
@@ -265,33 +265,33 @@ public class CupSendReceiver implements HBAction, HBReset {
 
 
             clock.addClockTickListener((offset, this_clock) -> {
-                    if (editList.currentEdit < editList.editN) {
-                        updateLastValues(
-                                editList.recordedSensor[editList.currentEdit].x,
-                                editList.recordedSensor[editList.currentEdit].y,
-                                editList.recordedSensor[editList.currentEdit].z
-                        );
+                if (editList.currentEdit < editList.editN) {
+                    updateLastValues(
+                            editList.recordedSensor[editList.currentEdit].x,
+                            editList.recordedSensor[editList.currentEdit].y,
+                            editList.recordedSensor[editList.currentEdit].z
+                    );
 
 
 
-                        editList.currentEdit++;
-                        manipulateSample(samplePlayer, loopLength, sampleSpeed);
+                    editList.currentEdit++;
+                    manipulateSample(samplePlayer, loopLength, sampleSpeed);
+                }
+                else {
+                    if(!REPEAT) {
+                        samplePlayer.setLoopType(SamplePlayer.LoopType.NO_LOOP_FORWARDS);
+                        samplePlayer.setToEnd();
+                        clock.stop();
+                        System.out.println("we are done");
+                        editList.currentEdit = 0;
+                        hb.reset();
                     }
                     else {
-                        if(!REPEAT) {
-                            samplePlayer.setLoopType(SamplePlayer.LoopType.NO_LOOP_FORWARDS);
-                            samplePlayer.setToEnd();
-                            clock.stop();
-                            System.out.println("we are done");
-                            editList.currentEdit = 0;
-                            hb.reset();
-                        }
-                        else {
-                            editList.currentEdit = 0;
-                            samplePlayer.setToEnd();
-                        }
-
+                        editList.currentEdit = 0;
+                        samplePlayer.setToEnd();
                     }
+
+                }
             });
 
             return true;

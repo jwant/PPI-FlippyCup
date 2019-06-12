@@ -22,6 +22,9 @@ import net.happybrackets.device.sensors.gpio.GPIOInput;
 
 public class SampleManip implements HBAction {
 
+//    final String SENDING_ADDRESS = "192.168.43.224";
+    final String SENDING_ADDRESS = "192.168.43.127";
+
     final String AUDIO_FILES[] = {
             "data/audio/whackPiano.wav",
             "data/audio/violinsSufjan.wav",
@@ -39,13 +42,13 @@ public class SampleManip implements HBAction {
     // We need to SET GPIO 28 High to enable Input or Output for GPIO on PiHat board
     private static final int GPIO_ENABLE =  28;
     // Define what outr GPIO Input pin is
-    final int GPIO_NUMBER = 25;
+    final int GPIO_NUMBER = 23;
 
     /*Sample Controls*/
     int audioFile = 0;  //sample choice
     final int SAMPLE_CUTS = 4;  //number of cuts in the sample
     final Boolean GATE = false;  //gate control is off or on
-    final Boolean REPEAT = false;
+    final Boolean REPEAT = true;
     //defining sample list
     Sample sampleList[] = new Sample[AUDIO_FILES.length];
     float loopLength = 0;
@@ -125,6 +128,7 @@ public class SampleManip implements HBAction {
             gainAmplifier.addInput(samplePlayer);
             hb.ac.out.addInput(gainAmplifier);
 
+
             samplePlayer.setLoopType(SamplePlayer.LoopType.LOOP_FORWARDS);
 
             sampleStart(samplePlayer);
@@ -167,7 +171,7 @@ public class SampleManip implements HBAction {
                 public void sensorUpdated(float xVal, float yVal, float zVal) {
                     if(liveFeed) {
                         updateLastValues(xVal, yVal, zVal);
-                        manipulateSample(samplePlayer, loopLength);
+                        manipulateSample(samplePlayer, loopLength, sampleSpeed);
 
                     }
                 }
@@ -217,7 +221,7 @@ public class SampleManip implements HBAction {
 
 
                         editList.currentEdit++;
-                        manipulateSample(samplePlayer, loopLength);
+                        manipulateSample(samplePlayer, loopLength, sampleSpeed);
                     }
                     else {
                         if(!REPEAT) {
@@ -230,6 +234,7 @@ public class SampleManip implements HBAction {
                         }
                         else {
                             editList.currentEdit = 0;
+                            samplePlayer.setToEnd();
                             clock.stop();
                             if(sendSample(editList))
                                 clock.start();
@@ -278,6 +283,7 @@ public class SampleManip implements HBAction {
                                 hb.setStatus("Record Manipulation");
                                 recording.start();
                                 clock.start();
+                                samplePlayer.setToEnd();
                                 System.out.println("Record Manipulation");
                             default:
                                 hb.setStatus("Reset System");
@@ -312,7 +318,7 @@ public class SampleManip implements HBAction {
     }
 
 
-    void manipulateSample(SamplePlayer samplePlayer, float loopLength) {
+    void manipulateSample(SamplePlayer samplePlayer, float loopLength, Glide sampleSpeed) {
 
         switch(SystemState) {
             case 0:
@@ -321,12 +327,16 @@ public class SampleManip implements HBAction {
                 changeSample(samplePlayer, loopLength);
                 break;
             case 2:             //Manipulate the sample
-                sampleCutting(samplePlayer, loopLength);
+                //sampleCutting(samplePlayer, loopLength);
+                sampleRateChange(sampleSpeed);
                 break;
             case 3:             //manipulate sample and record
-                sampleCutting(samplePlayer, loopLength);
+                //sampleCutting(samplePlayer, loopLength);
+                sampleRateChange(sampleSpeed);
+                break;
             default:
-                sampleCutting(samplePlayer,loopLength);
+                //sampleCutting(samplePlayer,loopLength);
+                sampleRateChange(sampleSpeed);
                 break;
 
         }
@@ -381,6 +391,11 @@ public class SampleManip implements HBAction {
         }
     }
 
+    void sampleRateChange(Glide sampleSpeed) {
+        //float z_scaled = Sensor.scaleValue(-1, 1, 0, 1, currentY);
+        sampleSpeed.setValue(currentZ + 1);
+    }
+
     void updateLastValues(float lastX, float lastY, float lastZ) {
         currentX = lastX;
         currentY = lastY;
@@ -402,16 +417,16 @@ public class SampleManip implements HBAction {
     boolean sendSample(SampleEdits editList) {
         // Create a UDP sender object
         OSCUDPSender oscSender = new OSCUDPSender();
-        oscSender.send(HB.createOSCMessage("SampleLocation", audioFile),"192.168.43.127", 9000);
+        oscSender.send(HB.createOSCMessage("SampleLocation", audioFile),SENDING_ADDRESS, 9000);
         for(int x = 0; x <(int)(RECORDING_TIME/RECORDING_INTERVALS) - 1; x++) {
             oscSender.send(HB.createOSCMessage("SensorValue",
                     x,
                     editList.recordedSensor[x].x,
                     editList.recordedSensor[x].y,
                     editList.recordedSensor[x].z
-            ), "192.168.43.127", 9000);
+            ), SENDING_ADDRESS, 9000);
         }
 
-        return oscSender.send(HB.createOSCMessage("PlaySample"),"192.168.43.127", 9000);
+        return oscSender.send(HB.createOSCMessage("PlaySample"),SENDING_ADDRESS, 9000);
     }
 }
